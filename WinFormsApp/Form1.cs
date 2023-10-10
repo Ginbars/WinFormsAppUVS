@@ -1,71 +1,112 @@
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace WinFormsApp
 {
     public partial class Form1 : Form
     {
+        private CancellationTokenSource? CTS { get; set; }
+        private readonly Random Rng = new();
+
         public Form1()
         {
             InitializeComponent();
+            var items = new BindingList<KeyValuePair<string, int>>()
+            {
+                new KeyValuePair<string, int>("2", 2),
+                new KeyValuePair<string, int>("3", 3),
+                new KeyValuePair<string, int>("4", 4),
+                new KeyValuePair<string, int>("5", 5),
+                new KeyValuePair<string, int>("6", 6),
+                new KeyValuePair<string, int>("7", 7),
+                new KeyValuePair<string, int>("8", 8),
+                new KeyValuePair<string, int>("9", 9),
+                new KeyValuePair<string, int>("10", 10),
+                new KeyValuePair<string, int>("11", 11),
+                new KeyValuePair<string, int>("12", 12),
+                new KeyValuePair<string, int>("13", 13),
+                new KeyValuePair<string, int>("14", 14),
+                new KeyValuePair<string, int>("15", 15)
+            };
+
+            comboBox1.DataSource = items;
+            comboBox1.ValueMember = "Value";
+            comboBox1.DisplayMember = "Key";
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            StartThreading(4);
-            Debug.WriteLine("omegalul");
+            StartThreading((int)comboBox1.SelectedValue);
         }
 
-        void StartThreading(int count)
+        private void button2_Click(object sender, EventArgs e)
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
+            if (CTS is CancellationTokenSource source)
+            {
+                source.Cancel();
+            }
+        }
+
+        private void StartThreading(int count)
+        {
+            if (CTS is CancellationTokenSource source)
+            {
+                source.Dispose();
+            }
+            CTS = new CancellationTokenSource();
             int id = 1;
             for (int i = 0; i < count; i++)
             {
                 Thread t = new Thread(new ParameterizedThreadStart(ThreadWork));
-                t.Start(new Tuple<CancellationToken, int>(cts.Token, id++));
+                t.Start(new Tuple<CancellationToken, int>(CTS.Token, id++));
             }
         }
 
-        void ThreadWork(object? data)
+        private void ThreadWork(object? data)
         {
-            Debug.WriteLine("lol");
             if (data == null || data is not Tuple<CancellationToken, int> tuple)
                 return;
 
-            Debug.WriteLine("lmao" + tuple.Item2);
-
+            var rng = new Random();
             while (true)
             {
-                var rng = new Random();
                 Thread.Sleep(500 + rng.Next(1500));
 
-                Debug.WriteLine("aware" + tuple.Item2);
                 if (tuple.Item1.IsCancellationRequested)
                 {
-                    Debug.WriteLine("rip" + tuple.Item2);
                     break;
                 }
 
                 string line = GenerateRandomLine();
+                listView1.Invoke(() => AddToListView(tuple.Item2, line));
                 StoreData(tuple.Item2, line);
             }
         }
 
-        void StoreData(int thread, string data)
+        private void AddToListView(int thread, string data)
+        {
+            if (listView1.Items.Count == 20)
+            {
+                listView1.Items.RemoveAt(19);
+            }
+            ListViewItem entry = new(new string[2] { thread.ToString(), data });
+            listView1.Items.Insert(0, entry);
+        }
+
+        private void StoreData(int thread, string data)
         {
             DateTime time = DateTime.Now;
             //To-do
             Debug.WriteLine("Thread nr: " + thread + ", Time: " + time + ", Data: " + data);
         }
 
-        string GenerateRandomLine()
+        private string GenerateRandomLine()
         {
             string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            var rng = new Random();
-            int length = 5 + rng.Next(5);
+            int length = 5 + Rng.Next(5);
             string line = "";
             for (int i = 0; i < length; i++)
-                line += chars[rng.Next(chars.Length)];
+                line += chars[Rng.Next(chars.Length)];
             return line;
         }
     }
