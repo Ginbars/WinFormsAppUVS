@@ -13,16 +13,5 @@ namespace WinFormsApp
             ApplicationConfiguration.Initialize();
             Application.Run(new Form1());
         }
-
-        static string GenerateRandomLine()
-        {
-            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            var rng = new Random();
-            int length = 5 + rng.Next();
-            string line = "";
-            for (int i = 0; i < length; i++)
-                line += chars[rng.Next(chars.Length)];
-            return line;
-        }
     }
 }
