@@ -1,5 +1,9 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Data;
+using System.Data.Odbc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Threading;
 
 namespace WinFormsApp
 {
@@ -32,6 +36,8 @@ namespace WinFormsApp
             comboBox1.DataSource = items;
             comboBox1.ValueMember = "Value";
             comboBox1.DisplayMember = "Key";
+
+            RestoreList();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -79,7 +85,7 @@ namespace WinFormsApp
 
                 string line = GenerateRandomLine();
                 listView1.Invoke(() => AddToListView(tuple.Item2, line));
-                StoreData(tuple.Item2, line);
+                DatabaseHandler.StoreData(tuple.Item2, line);
             }
         }
 
@@ -93,11 +99,13 @@ namespace WinFormsApp
             listView1.Items.Insert(0, entry);
         }
 
-        private void StoreData(int thread, string data)
+        private void RestoreList()
         {
-            DateTime time = DateTime.Now;
-            //To-do
-            Debug.WriteLine("Thread nr: " + thread + ", Time: " + time + ", Data: " + data);
+            var data = DatabaseHandler.FetchLatestData();
+            foreach (var entry in data)
+            {
+                AddToListView(entry.Item1, entry.Item2);
+            }
         }
 
         private string GenerateRandomLine()
