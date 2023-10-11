@@ -9,7 +9,6 @@ namespace WinFormsApp
 {
     public partial class Form1 : Form
     {
-        private readonly Random Rng = new();
         private ThreadingHandler Threading { get; set; }
 
         public Form1()
@@ -49,6 +48,7 @@ namespace WinFormsApp
                 button1.Text = "Stopping";
                 button1.Enabled = false;
                 Thread.Sleep(2000);
+                Threading.DisposeToken();
                 button1.Text = "Start";
                 button1.Enabled = true;
             }
@@ -57,11 +57,6 @@ namespace WinFormsApp
                 Threading.StartThreading((int)comboBox1.SelectedValue);
                 button1.Text = "Stop";
             }
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            Threading.StopThreading();
         }
 
         private void AddToListView(int thread, string data)

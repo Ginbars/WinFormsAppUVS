@@ -21,10 +21,6 @@ namespace WinFormsApp
 
         public void StartThreading(int count)
         {
-            if (CTS is CancellationTokenSource source)
-            {
-                source.Dispose();
-            }
             CTS = new CancellationTokenSource();
             int id = 1;
             for (int i = 0; i < count; i++)
@@ -37,11 +33,13 @@ namespace WinFormsApp
 
         public void StopThreading()
         {
-            if (CTS is CancellationTokenSource source)
-            {
-                source.Cancel();
-            }
+            CTS.Cancel();
             ThreadsActive = false;
+        }
+
+        public void DisposeToken()
+        {
+            CTS.Dispose();
         }
 
         public void ThreadWork(object? data)
