@@ -34,14 +34,13 @@
             ThreadID = new ColumnHeader();
             Data = new ColumnHeader();
             comboBox1 = new ComboBox();
-            button2 = new Button();
             SuspendLayout();
             // 
             // button1
             // 
-            button1.Location = new Point(189, 10);
+            button1.Location = new Point(160, 11);
             button1.Name = "button1";
-            button1.Size = new Size(61, 25);
+            button1.Size = new Size(90, 25);
             button1.TabIndex = 0;
             button1.Text = "Start";
             button1.UseVisualStyleBackColor = true;
@@ -50,9 +49,10 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(12, 17);
+            label1.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
+            label1.Location = new Point(4, 15);
             label1.Name = "label1";
-            label1.Size = new Size(82, 15);
+            label1.Size = new Size(90, 17);
             label1.TabIndex = 2;
             label1.Text = "Thread Count:";
             label1.TextAlign = ContentAlignment.MiddleCenter;
@@ -62,7 +62,7 @@
             listView1.Columns.AddRange(new ColumnHeader[] { ThreadID, Data });
             listView1.Location = new Point(12, 55);
             listView1.Name = "listView1";
-            listView1.Size = new Size(238, 365);
+            listView1.Size = new Size(238, 393);
             listView1.TabIndex = 3;
             listView1.UseCompatibleStateImageBehavior = false;
             listView1.View = View.Details;
@@ -86,22 +86,11 @@
             comboBox1.Size = new Size(54, 23);
             comboBox1.TabIndex = 4;
             // 
-            // button2
-            // 
-            button2.Location = new Point(91, 426);
-            button2.Name = "button2";
-            button2.Size = new Size(75, 33);
-            button2.TabIndex = 5;
-            button2.Text = "Stop";
-            button2.UseVisualStyleBackColor = true;
-            button2.Click += button2_Click;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(262, 460);
-            Controls.Add(button2);
             Controls.Add(comboBox1);
             Controls.Add(listView1);
             Controls.Add(label1);
@@ -120,6 +109,5 @@
         private ComboBox comboBox1;
         public ColumnHeader ThreadID;
         private ColumnHeader Data;
-        private Button button2;
     }
 }

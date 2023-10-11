@@ -9,8 +9,8 @@ namespace WinFormsApp
 {
     public partial class Form1 : Form
     {
-        private CancellationTokenSource? CTS { get; set; }
         private readonly Random Rng = new();
+        private ThreadingHandler Threading { get; set; }
 
         public Form1()
         {
@@ -37,56 +37,31 @@ namespace WinFormsApp
             comboBox1.ValueMember = "Value";
             comboBox1.DisplayMember = "Key";
 
+            Threading = new((x, y) => listView1.Invoke(() => AddToListView(x, y)));
             RestoreList();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            StartThreading((int)comboBox1.SelectedValue);
+            if (Threading.ThreadsActive)
+            {
+                Threading.StopThreading();
+                button1.Text = "Stopping";
+                button1.Enabled = false;
+                Thread.Sleep(2000);
+                button1.Text = "Start";
+                button1.Enabled = true;
+            }
+            else
+            {
+                Threading.StartThreading((int)comboBox1.SelectedValue);
+                button1.Text = "Stop";
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (CTS is CancellationTokenSource source)
-            {
-                source.Cancel();
-            }
-        }
-
-        private void StartThreading(int count)
-        {
-            if (CTS is CancellationTokenSource source)
-            {
-                source.Dispose();
-            }
-            CTS = new CancellationTokenSource();
-            int id = 1;
-            for (int i = 0; i < count; i++)
-            {
-                Thread t = new Thread(new ParameterizedThreadStart(ThreadWork));
-                t.Start(new Tuple<CancellationToken, int>(CTS.Token, id++));
-            }
-        }
-
-        private void ThreadWork(object? data)
-        {
-            if (data == null || data is not Tuple<CancellationToken, int> tuple)
-                return;
-
-            var rng = new Random();
-            while (true)
-            {
-                Thread.Sleep(500 + rng.Next(1500));
-
-                if (tuple.Item1.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                string line = GenerateRandomLine();
-                listView1.Invoke(() => AddToListView(tuple.Item2, line));
-                DatabaseHandler.StoreData(tuple.Item2, line);
-            }
+            Threading.StopThreading();
         }
 
         private void AddToListView(int thread, string data)
@@ -106,16 +81,6 @@ namespace WinFormsApp
             {
                 AddToListView(entry.Item1, entry.Item2);
             }
-        }
-
-        private string GenerateRandomLine()
-        {
-            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            int length = 5 + Rng.Next(5);
-            string line = "";
-            for (int i = 0; i < length; i++)
-                line += chars[Rng.Next(chars.Length)];
-            return line;
         }
     }
 }
